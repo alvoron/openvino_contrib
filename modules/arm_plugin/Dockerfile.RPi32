@@ -90,12 +90,17 @@ RUN echo 'deb http://deb.debian.org/debian stretch-backports main' > /etc/apt/so
     && \
     rm -rf /var/lib/apt/lists/*
 
+#python 32 bit is required to build nGraph python API
+RUN dpkg --add-architecture i386 && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends python3:i386 python3-numpy:i386
+
 #python 3.6 or higher is required to build Open Model Zoo python demos
-RUN wget https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tgz 2>/dev/null && \
-    tar -zxvf Python-3.6.1.tgz && \
-    cd Python-3.6.1 && \
-    ./configure && \
-    make install
+RUN wget https://www.python.org/ftp/python/3.6.13/Python-3.6.13.tgz 2>/dev/null && \
+    tar -zxvf Python-3.6.13.tgz && \
+    cd Python-3.6.13 && \
+    ./configure --build=arm-linux-gnueabihf && \
+    make altinstall
 
 ENV ARCH_NAME arm-linux-gnueabihf
 ENV TOOLCHAIN_DEFS arm.toolchain.cmake

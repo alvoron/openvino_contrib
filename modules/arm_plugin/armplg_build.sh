@@ -1,9 +1,12 @@
 #!/bin/sh
 
+set -x
+
 BUILD_JOBS=${BUILD_JOBS:-$(nproc)}
 BUILD_TYPE=${BUILD_TYPE:-Release}
 UPDATE_SOURCES=${UPDATE_SOURCES:-clean}
 WITH_OMZ_DEMO=${WITH_OMZ_DEMO:-ON}
+
 
 DEV_HOME=`pwd`
 OPENCV_HOME=$DEV_HOME/opencv
@@ -53,7 +56,7 @@ checkSrcTree()
             if [ "$UPDATE_SOURCES" = "clean" ]; then
                 echo "Cleanup of previous build requested"
                 echo "Removing previous build results..."
-                rm -rf $2/build || fail 2 "Failed to cleanup. Stopping"
+                rm -rf $1/build || fail 2 "Failed to cleanup. Stopping"
             fi
         fi
     fi
@@ -65,7 +68,7 @@ checkSrcTree()
 #Prepare sources
 checkSrcTree $OPENCV_HOME https://github.com/opencv/opencv.git OpenCV
 checkSrcTree $OPENVINO_HOME https://github.com/openvinotoolkit/openvino.git OpenVINO
-checkSrcTree $OPENVINO_CONTRIB https://github.com/openvinotoolkit/openvino_contrib.git OpenVINO_contrib
+checkSrcTree $OPENVINO_CONTRIB https://github.com/openvinotoolkit/openvino_contrib.git "OpenVINO Contrib"
 checkSrcTree $OMZ_HOME https://github.com/openvinotoolkit/open_model_zoo.git "Open Model Zoo"
 
 #cleanup package destination folder
@@ -101,7 +104,7 @@ cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_LIST=imgcodecs,videoio,highgui,pyth
       -DCMAKE_STAGING_PREFIX=$STAGING_DIR/opencv \
       -DWITH_GTK_2_X=OFF \
       -DOPENCV_ENABLE_PKG_CONFIG=ON \
-      -DPKG_CONFIG_EXECUTABLE=/usr/bin/arm-linux-gnueabihf-pkg-config \
+      -DPKG_CONFIG_EXECUTABLE=/usr/bin/${ARCH_NAME}-pkg-config \
       $OPENCV_HOME && \
 make -j$BUILD_JOBS && \
 make install && \
@@ -123,6 +126,9 @@ cmake -DOpenCV_DIR=$STAGING_DIR/opencv/cmake -DENABLE_OPENCV=OFF \
       -DCMAKE_CXX_FLAGS=-latomic -DOPENCV_EXTRA_EXE_LINKER_FLAGS=-latomic \
       -DCMAKE_TOOLCHAIN_FILE="$OPENVINO_HOME/cmake/$TOOLCHAIN_DEFS" \
       -DCMAKE_STAGING_PREFIX=$STAGING_DIR \
+      -DENABLE_PYTHON=ON \
+      -DPYTHON_EXECUTABLE="/usr/bin/${PYTHONVER}m" \
+      -DNGRAPH_PYTHON_BUILD_ENABLE=ON -DNGRAPH_ONNX_IMPORT_ENABLE=ON \
       $OPENVINO_HOME && \
 make -j$BUILD_JOBS && \
 ARCHDIR=`ls $OPENVINO_HOME/bin` && \
@@ -173,7 +179,6 @@ if [ "$WITH_OMZ_DEMO" = "ON" ]; then
   cd $OMZ_DEMOS_BUILD && \
   cmake -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_TOOLCHAIN_FILE="$OPENVINO_HOME/cmake/$TOOLCHAIN_DEFS" \
-        -DENABLE_PYTHON=OFF \
         -DInferenceEngine_DIR=$OPENVINO_HOME/build \
         -DOpenCV_DIR=$OPENCV_HOME/build \
         -Dngraph_DIR=$OPENVINO_HOME/build/ngraph \
@@ -207,6 +212,7 @@ cp -vr $OPENVINO_HOME/scripts/install_dependencies $STAGING_DIR/install_dependen
 cp -vr $OPENVINO_HOME/inference-engine/tools $STAGING_DIR/deployment_tools/python_tools && \
 (![ "$WITH_OMZ_DEMO" = "ON" ] || mkdir -p $STAGING_DIR/deployment_tools/inference_engine/demos) && \
 (![ "$WITH_OMZ_DEMO" = "ON" ] || cp -vr $OMZ_DEMOS_BUILD/. $STAGING_DIR/deployment_tools/inference_engine/demos) && \
+(![ "$WITH_OMZ_DEMO" = "ON" ] || cp -vr $OMZ_HOME/demos/python_demos $STAGING_DIR/deployment_tools/inference_engine/demos) && \
 echo "=================================RPATH cleaning==================================" && \
 find $STAGING_DIR/deployment_tools/inference_engine/lib/$ARCHDIR/ -maxdepth 1 -type f -name "*.so" -exec chrpath --delete {} \; && \
 find $STAGING_DIR/deployment_tools/inference_engine/bin/$ARCHDIR/ -maxdepth 1 -type f -exec chrpath --delete {} \; && \
