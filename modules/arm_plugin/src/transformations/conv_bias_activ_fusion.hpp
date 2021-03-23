@@ -156,7 +156,7 @@ public:
         add_matcher<ConvBiasFusion>();
         add_matcher<GroupConvBiasFusion>();
 
-        add_matcher<ConvSigmoidFusion>();
+/*        add_matcher<ConvSigmoidFusion>();
         add_matcher<ConvTanhFusion>();
         add_matcher<ConvReluFusion>();
         add_matcher<ConvAbsFusion>();
@@ -176,7 +176,7 @@ public:
         add_matcher<GroupConvHSwishFusion>();
         add_matcher<GroupConvSoftPlusFusion>();
         add_matcher<GroupConvClampFusion>();
-        add_matcher<GroupConvEluFusion>();
+        add_matcher<GroupConvEluFusion>();*/
     }
 };
 }  // namespace pass

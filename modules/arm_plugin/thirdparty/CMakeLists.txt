@@ -63,7 +63,7 @@ else()
         examples=0
         internal_only=0
         build_dir=${CMAKE_CURRENT_BINARY_DIR}
-        -j8
+        -j1
     )
 
     if (CMAKE_BUILD_TYPE STREQUAL "Debug")
