@@ -66,7 +66,7 @@ else()
         data_layout_support=nchw
         build_dir=${CMAKE_CURRENT_BINARY_DIR}
         arch=${ARM_COMPUTE_TARGET_ARCH}
-        -j8
+        -j1
     )
 
     if (CMAKE_BUILD_TYPE STREQUAL "Debug")
