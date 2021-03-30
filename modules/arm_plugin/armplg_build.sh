@@ -132,6 +132,8 @@ cmake -DOpenCV_DIR=$STAGING_DIR/opencv/cmake -DENABLE_OPENCV=OFF \
       -DENABLE_DATA=OFF -DENABLE_PROFILING_ITT=OFF \
       -DCMAKE_EXE_LINKER_FLAGS=-Wl,-rpath-link,$STAGING_DIR/opencv/lib -DCMAKE_INSTALL_LIBDIR=lib \
       -DENABLE_SSE42=OFF -DENABLE_MYRIAD=ON -DENABLE_GNA=OFF -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+      -DPYTHON_EXECUTABLE="/usr/bin/${PYTHONVER}m" \
+      -DENABLE_PYTHON=ON -DNGRAPH_PYTHON_BUILD_ENABLE=ON -DNGRAPH_ONNX_IMPORT_ENABLE=ON \
       -DTHREADING=SEQ -DENABLE_LTO=ON \
       -DCMAKE_CXX_FLAGS=-latomic \
       -DCMAKE_TOOLCHAIN_FILE="$OPENVINO_HOME/cmake/$TOOLCHAIN_DEFS" \
@@ -183,7 +185,6 @@ if [ "$WITH_OMZ_DEMO" = "ON" ]; then
   mkdir -p $OMZ_DEMOS_BUILD && \
   cd $OMZ_DEMOS_BUILD && \
   cmake -DCMAKE_BUILD_TYPE=Release \
-        -DENABLE_PYTHON=OFF \
         -DCMAKE_TOOLCHAIN_FILE="$OPENVINO_HOME/cmake/$TOOLCHAIN_DEFS" \
         -DInferenceEngine_DIR=$OPENVINO_HOME/build \
         -DOpenCV_DIR=$OPENCV_HOME/build \
@@ -218,6 +219,7 @@ cp -vr $OPENVINO_HOME/scripts/install_dependencies $STAGING_DIR/install_dependen
 cp -vr $OPENVINO_HOME/inference-engine/tools $STAGING_DIR/deployment_tools/python_tools && \
 (! [ "$WITH_OMZ_DEMO" = "ON" ] || mkdir -p $STAGING_DIR/deployment_tools/inference_engine/demos) && \
 (! [ "$WITH_OMZ_DEMO" = "ON" ] || cp -vr $OMZ_DEMOS_BUILD $STAGING_DIR/deployment_tools/inference_engine/demos) && \
+(! [ "$WITH_OMZ_DEMO" = "ON" ] || cp -vr $OMZ_HOME/demos/python_demos $STAGING_DIR/deployment_tools/inference_engine/demos) && \
 echo "=================================RPATH cleaning==================================" && \
 find $STAGING_DIR/deployment_tools/inference_engine/lib/$ARCHDIR/ -maxdepth 1 -type f -name "*.so" -exec chrpath --delete {} \; && \
 find $STAGING_DIR/deployment_tools/inference_engine/bin/$ARCHDIR/ -maxdepth 1 -type f -exec chrpath --delete {} \; && \
