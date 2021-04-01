@@ -88,12 +88,12 @@ mkdir -p $STAGING_DIR
 #Build OpenCV
 mkdir -p $OPENCV_HOME/build && \
 cd $OPENCV_HOME/build && \
-PYTHONVER=`ls /usr/include | grep "python3[^m]*$"` && \
+PYTHONVER=`ls /usr/include | grep "python3[^m]*$" | tail -1` && \
 cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_LIST=imgcodecs,videoio,highgui,gapi,python3 \
       -DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=ON -DOPENCV_SKIP_PYTHON_LOADER=ON \
       -DPYTHON3_LIMITED_API=ON -DPYTHON3_PACKAGES_PATH=$STAGING_DIR/opencv/python \
-      -DPYTHON3_INCLUDE_PATH=/usr/include/${PYTHONVER}m \
-      -DPYTHON3_LIBRARIES=/usr/lib/$ARCH_NAME/lib${PYTHONVER}m.so \
+      -DPYTHON3_INCLUDE_PATH=/usr/include/${PYTHONVER} \
+      -DPYTHON3_LIBRARIES=/usr/lib/$ARCH_NAME/lib${PYTHONVER}.so \
       -DPYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
       -D CMAKE_USE_RELATIVE_PATHS=ON \
       -D CMAKE_SKIP_INSTALL_RPATH=ON \
@@ -132,7 +132,7 @@ cmake -DOpenCV_DIR=$STAGING_DIR/opencv/cmake -DENABLE_OPENCV=OFF \
       -DENABLE_DATA=OFF -DENABLE_PROFILING_ITT=OFF \
       -DCMAKE_EXE_LINKER_FLAGS=-Wl,-rpath-link,$STAGING_DIR/opencv/lib -DCMAKE_INSTALL_LIBDIR=lib \
       -DENABLE_SSE42=OFF -DENABLE_MYRIAD=OFF -DENABLE_GNA=OFF -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-      -DPYTHON_EXECUTABLE="/usr/bin/${PYTHONVER}m" \
+      -DPYTHON_EXECUTABLE="/usr/bin/${PYTHONVER}" \
       -DENABLE_PYTHON=ON -DNGRAPH_PYTHON_BUILD_ENABLE=ON -DNGRAPH_ONNX_IMPORT_ENABLE=ON \
       -DTHREADING=SEQ -DENABLE_LTO=ON \
       -DCMAKE_CXX_FLAGS=-latomic \
@@ -148,7 +148,7 @@ cd $DEV_HOME || fail 12 "OpenVINO build failed. Stopping"
 mkdir -p $OPENVINO_HOME/pbuild && \
 cd $OPENVINO_HOME/pbuild && \
 cmake -DInferenceEngineDeveloperPackage_DIR=$OPENVINO_HOME/build \
-      -DENABLE_PYTHON=ON -DPYTHON_EXECUTABLE="/usr/bin/${PYTHONVER}m" \
+      -DENABLE_PYTHON=ON -DPYTHON_EXECUTABLE="/usr/bin/${PYTHONVER}" \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENABLE_DATA=OFF \
       -DCMAKE_EXE_LINKER_FLAGS=-Wl,-rpath-link,$STAGING_DIR/opencv/lib \
       -DCMAKE_TOOLCHAIN_FILE="$OPENVINO_HOME/cmake/$TOOLCHAIN_DEFS" \
